@@ -1,0 +1,7 @@
+C:\Users\Kees\Documents\GitHub\_InclinoTestFacility_Influxdb\INFLUXDBTESTS\bin\Debug\INFLUXDBTESTS.exe.config
+C:\Users\Kees\Documents\GitHub\_InclinoTestFacility_Influxdb\INFLUXDBTESTS\bin\Debug\INFLUXDBTESTS.exe
+C:\Users\Kees\Documents\GitHub\_InclinoTestFacility_Influxdb\INFLUXDBTESTS\bin\Debug\INFLUXDBTESTS.pdb
+C:\Users\Kees\Documents\GitHub\_InclinoTestFacility_Influxdb\INFLUXDBTESTS\obj\Debug\INFLUXDBTESTS.csproj.CoreCompileInputs.cache
+C:\Users\Kees\Documents\GitHub\_InclinoTestFacility_Influxdb\INFLUXDBTESTS\obj\Debug\INFLUXDBTESTS.exe
+C:\Users\Kees\Documents\GitHub\_InclinoTestFacility_Influxdb\INFLUXDBTESTS\obj\Debug\INFLUXDBTESTS.pdb
+C:\Users\Kees\Documents\GitHub\_InclinoTestFacility_Influxdb\INFLUXDBTESTS\obj\Debug\INFLUXDBTESTS.csprojAssemblyReference.cache
