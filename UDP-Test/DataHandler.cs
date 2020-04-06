@@ -133,15 +133,7 @@ namespace UDP_Test
             }
             for (int i = 0; i < messages.Length; i++)
             {
-                if (messages[i].Sensor_Id == 0 || messages[i].Data_type == 0)
-                {
-                    break;
-                }
-                if(messages[i].data == 0)
-                {
-
-                }
-                else if ((enums.Data_type)messages[i].Data_type == enums.Data_type.TEMP)
+                if ((enums.Data_type)messages[i].Data_type == enums.Data_type.TEMP)
                 {
                     if ((tempRead & (1 << messages[i].Sensor_Id)) == 0)
                     {
@@ -161,7 +153,6 @@ namespace UDP_Test
                 }
                 else if((messages[i].Sensor_Id > 0) & (messages[i].Sensor_Id < 20)){
                     dataProcessor.addData(messages[i].Sensor_Id, messages[i].Data_type, messages[i].data);
-                    //Console.WriteLine("Sensor data: Sensor_Id {0}, Data type {1}, data {2:X}", messages[i].Sensor_Id, messages[i].Data_type, messages[i].data);
                 }
                 else{
                     Console.WriteLine("Data Invalid: Sensor_Id {0}, Data type {1}, data {2}", messages[i].Sensor_Id, messages[i].Data_type, messages[i].data);

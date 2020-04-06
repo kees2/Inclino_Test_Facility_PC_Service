@@ -54,8 +54,6 @@ namespace UDP_Test
             set { imus = IMUS; }
         }
 
-
-
         public DataProcessor()
         {
             //Initialize the amount of IMU that are needed 
@@ -117,7 +115,6 @@ namespace UDP_Test
             {
                 Console.WriteLine("Error Data_type with this Id does not exist");
             }
-            
         }
 
         public void resetIMUs()
@@ -189,9 +186,7 @@ namespace UDP_Test
                 {
                     BMI085Temp_int11 -= 2048;
                 }
-                double test = BMI085Temp_int11 * 0.125 + 23;
-                return BMI085Temp_int11 * 0.125 + 23;
-
+                return (BMI085Temp_int11 * 0.125) + 23;
             }
             else if (ic_type == enums.IC_type.LMS6DSO)
             {
@@ -199,7 +194,6 @@ namespace UDP_Test
                 //Temperature sensitivity 256 LSB/°C
                 //The output of the temperature sensor is 0 LSB (typ.) at 25 °C
                 short LMS6DSOTemp_int16 = (short)temp;
-                double temperature = 25 + (LMS6DSOTemp_int16 / 256);
                 return 25 + (LMS6DSOTemp_int16 / 256);
             }
             else if (ic_type == enums.IC_type.MS5611_01BA03)
@@ -240,12 +234,12 @@ namespace UDP_Test
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
                 data = (Int16)data;
-                returnValue = LSM6DSM_angular_rate / 32767 * data;
+                returnValue = (LSM6DSM_angular_rate / 32767) * data;
             }
             else
             {
                 data = (Int16)data;
-                returnValue = data / 32768 * 1000 * 2 ^ (LSM6DSM_Acc_rang + 1);
+                returnValue = (data / 32768) * 1000 * 2 ^ (LSM6DSM_Acc_rang + 1);
             }
             return returnValue;
         }
@@ -256,12 +250,12 @@ namespace UDP_Test
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
-                returnValue = BMI085_angular_rate / 32767 * data;
+                returnValue = (BMI085_angular_rate / 32767) * data;
             }
             else
             {
                 data = (Int16)data;
-                returnValue = data / 32768 * 1000 * 2 ^ (BMI085_Acc_rang + 1);
+                returnValue = (data / 32768) * 1000 * 2 ^ (BMI085_Acc_rang + 1);
             }
             return returnValue;
         }
@@ -274,7 +268,7 @@ namespace UDP_Test
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
-                returnValue = BMI055_angular_rate / 32767 * data;
+                returnValue = (BMI055_angular_rate / 32767) * data;
             }
             else
             {
@@ -282,13 +276,5 @@ namespace UDP_Test
             }
             return returnValue;
         }
-
-
-
-
-
-
-
     }
-
 }
