@@ -10,7 +10,7 @@ namespace UDP_Test
 {
     public class DataHandler
     {
-        int testcounter = 0;
+        byte desiredTemperature = 40;
         int tempRead = 0;
         int testcounterAmountMessages = 0;
         int tempCounter = 0;
@@ -31,6 +31,7 @@ namespace UDP_Test
 
         private static DataProcessor dataProcessor = new DataProcessor();
         private Influxdb1_7 influx17 = new Influxdb1_7();
+        private UDPSend udpSendserver = new UDPSend();
 
         public DataHandler()
         {
@@ -50,6 +51,8 @@ namespace UDP_Test
             Console.WriteLine("OffsetInitialisation finished");
             dataProcessor.resetIMUs();
             dataProcessor.resetInclinos();
+
+            udpSendserver.initUDPSend();
 
             makeThreads();
             InitTimer();
@@ -86,7 +89,9 @@ namespace UDP_Test
 
             dataProcessor.resetIMUs();
             dataProcessor.resetInclinos();
-            
+
+            udpSendserver.sendTemp(desiredTemperature);
+
             Console.WriteLine("amount packages{0}", testcounterAmountMessages);
             Console.WriteLine("amount temperature{0}", tempCounter);
             tempCounter = 0;
@@ -187,13 +192,10 @@ namespace UDP_Test
             {
                 return enums.IC_type.MS5611_01BA03;
             }
-
-
             else
             {
                 return 0;
             }
-            
         }
 
         private void resetTempRead()

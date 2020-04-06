@@ -162,6 +162,7 @@
     <Compile Include="Influxdb1_7.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UDPSend.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
