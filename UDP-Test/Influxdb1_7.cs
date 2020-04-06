@@ -24,13 +24,6 @@ namespace UDP_Test
         public void initDB()
         {
             client = new LineProtocolClient(new Uri(databaseAddress), databaseName);
-            //payload = new LineProtocolPayload();
-        }
-
-        public void sendData()
-        {
-            //client.WriteAsync(payload);
-            //payload = new LineProtocolPayload();
         }
 
         //Send a single datapackage to the database

@@ -92,8 +92,8 @@ namespace UDP_Test
 
             udpSendserver.sendTemp(desiredTemperature);
 
-            Console.WriteLine("amount packages{0}", testcounterAmountMessages);
-            Console.WriteLine("amount temperature{0}", tempCounter);
+            //Console.WriteLine("amount packages{0}", testcounterAmountMessages);
+            //Console.WriteLine("amount temperature{0}", tempCounter);
             tempCounter = 0;
             tempRead = 0;
             testcounterAmountMessages = 0;
@@ -108,6 +108,9 @@ namespace UDP_Test
                 newThread.Name = String.Format("ThreadReceive{0}", i + 1);
                 newThread.Start();
             }
+            Thread newThread2 = new Thread(new ThreadStart(ThreadReceiveTempdata));
+            newThread2.Name = String.Format("ThreadReceiveTempdata{0}", 1);
+            newThread2.Start();
         }
                               
         private  void ThreadProcReceive()
@@ -115,6 +118,32 @@ namespace UDP_Test
             while (true)
             {
                 dataReceiver();
+            }
+        }
+
+        private void ThreadReceiveTempdata()
+        {
+            while (true)
+            {
+                byte inputValue;
+                Console.Write("Desired temperature: ");
+                string userInput = Console.ReadLine();
+                try
+                {
+                    inputValue = Convert.ToByte(userInput);
+                    if (inputValue > 80)
+                    {
+                        Console.WriteLine("The temperature value of {0} is too high, do you want to damage the system?", inputValue);
+                    }
+                    else
+                    {
+                        desiredTemperature = inputValue;
+                    }
+                }
+                catch (FormatException e)
+                {
+                    Console.WriteLine("Inputvalue is not between 0 and 80");
+                }
             }
         }
 
@@ -131,34 +160,37 @@ namespace UDP_Test
             {
                 AsyncReceive.MessageReadbuffer = 0;
             }
-            for (int i = 0; i < messages.Length; i++)
+            if(messages != null)
             {
-                if ((enums.Data_type)messages[i].Data_type == enums.Data_type.TEMP)
+                for (int i = 0; i < messages.Length; i++)
                 {
-                    if ((tempRead & (1 << messages[i].Sensor_Id)) == 0)
+                    if ((enums.Data_type)messages[i].Data_type == enums.Data_type.TEMP)
                     {
-                        tempCounter++;
-                        enums.IC_type ic_type = determineSensorType(messages[i].Sensor_Id);
-                        influx17.addData(messages[i].Sensor_Id, (enums.Data_type)messages[i].Data_type, dataProcessor.calculateTempDegrees(messages[i].data, ic_type), ic_type); 
-                        tempRead |= (1 << (messages[i].Sensor_Id));
+                        if ((tempRead & (1 << messages[i].Sensor_Id)) == 0)
+                        {
+                            tempCounter++;
+                            enums.IC_type ic_type = determineSensorType(messages[i].Sensor_Id);
+                            influx17.addData(messages[i].Sensor_Id, (enums.Data_type)messages[i].Data_type, dataProcessor.calculateTempDegrees(messages[i].data, ic_type), ic_type); 
+                            tempRead |= (1 << (messages[i].Sensor_Id));
+                        }
+                    }
+                    else if ((enums.Data_type)messages[i].Data_type == enums.Data_type.BARO)
+                    {
+                        if(!Baroread)
+                        {
+                            Baroread = true;
+                            influx17.addData(messages[i].Sensor_Id, (enums.Data_type)messages[i].Data_type, (messages[i].data/100), determineSensorType(messages[i].Sensor_Id));
+                        }
+                    }
+                    else if((messages[i].Sensor_Id > 0) & (messages[i].Sensor_Id < 20)){
+                        dataProcessor.addData(messages[i].Sensor_Id, messages[i].Data_type, messages[i].data);
+                    }
+                    else{
+                        Console.WriteLine("Data Invalid: Sensor_Id {0}, Data type {1}, data {2}", messages[i].Sensor_Id, messages[i].Data_type, messages[i].data);
                     }
                 }
-                else if ((enums.Data_type)messages[i].Data_type == enums.Data_type.BARO)
-                {
-                    if(!Baroread)
-                    {
-                        Baroread = true;
-                        influx17.addData(messages[i].Sensor_Id, (enums.Data_type)messages[i].Data_type, (messages[i].data/100), determineSensorType(messages[i].Sensor_Id));
-                    }
-                }
-                else if((messages[i].Sensor_Id > 0) & (messages[i].Sensor_Id < 20)){
-                    dataProcessor.addData(messages[i].Sensor_Id, messages[i].Data_type, messages[i].data);
-                }
-                else{
-                    Console.WriteLine("Data Invalid: Sensor_Id {0}, Data type {1}, data {2}", messages[i].Sensor_Id, messages[i].Data_type, messages[i].data);
-                }
+                testcounterAmountMessages++;
             }
-            testcounterAmountMessages++;
         }
 
         private enums.IC_type determineSensorType(int Sensor_id)
