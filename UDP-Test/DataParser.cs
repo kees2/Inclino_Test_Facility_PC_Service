@@ -8,16 +8,16 @@ using System.Diagnostics;
 
 namespace UDP_Test
 {
-    public class DataHandler
+    public static class DataParser
     {
-        byte desiredTemperature = 40;
-        int tempRead = 0;
-        int testcounterAmountMessages = 0;
-        int tempCounter = 0;
-        bool Baroread = false;
-        int offsetTimerInterval = 2000;
-        bool offsetTimerDone = false;
-        System.Timers.Timer OffsetTimer = new System.Timers.Timer();
+        static byte desiredTemperature = 40;
+        static int tempRead = 0;
+        static int testcounterAmountMessages = 0;
+        static int tempCounter = 0;
+        static bool Baroread = false;
+        static int offsetTimerInterval = 2000;
+        static bool offsetTimerDone = false;
+        static System.Timers.Timer OffsetTimer = new System.Timers.Timer();
 
         public struct databaseMessage
         {
@@ -30,15 +30,10 @@ namespace UDP_Test
         private const int numThreads = 1;
 
         private static DataProcessor dataProcessor = new DataProcessor();
-        private Influxdb1_7 influx17 = new Influxdb1_7();
-        private UDPSend udpSendserver = new UDPSend();
+        private static Influxdb1_7 influx17 = new Influxdb1_7();
+        private static UDPSend udpSendserver = new UDPSend();
 
-        public DataHandler()
-        {
-            initDataHandler();
-        }
-
-        public void initDataHandler()
+        public static void initDataHandler()
         {
             influx17.initDB();
             AsyncReceive.ReceiveMessages();
@@ -59,7 +54,7 @@ namespace UDP_Test
         }
 
         //Initialize timer which interrupts every second
-        private void InitTimer()
+        private static void InitTimer()
         {
             System.Timers.Timer timerS = new System.Timers.Timer();
             timerS.Interval = 1000;
@@ -67,23 +62,22 @@ namespace UDP_Test
             timerS.Start();
         }
 
-        private void startoffsetTimer()
+        private static void startoffsetTimer()
         {
             OffsetTimer.Interval = offsetTimerInterval;
             OffsetTimer.Elapsed += offsettimer_Elapsed;
             OffsetTimer.Start();
         }
 
-        void offsettimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        private static void offsettimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
             offsetTimerDone = true;
             OffsetTimer.Stop();
         }
 
         //Send all buffered data to the influx database
-        void timer_ElapsedS(object sender, System.Timers.ElapsedEventArgs e)
+        private static void timer_ElapsedS(object sender, System.Timers.ElapsedEventArgs e)
         {
-
             influx17.addIMUs(dataProcessor.IMUS, dataProcessor.AmountIMU);
             influx17.addInclinos(dataProcessor.Inclinos, dataProcessor.AmountInclino);          
 
@@ -100,7 +94,7 @@ namespace UDP_Test
             Baroread = false;
         }
 
-        private void makeThreads()
+        private static void makeThreads()
         {
             for (int i = 0; i < numThreads; i++)
             {
@@ -113,7 +107,7 @@ namespace UDP_Test
             newThread2.Start();
         }
                               
-        private  void ThreadProcReceive()
+        private static void ThreadProcReceive()
         {
             while (true)
             {
@@ -121,7 +115,7 @@ namespace UDP_Test
             }
         }
 
-        private void ThreadReceiveTempdata()
+        private static void ThreadReceiveTempdata()
         {
             while (true)
             {
@@ -147,7 +141,7 @@ namespace UDP_Test
             }
         }
 
-        void dataReceiver()
+        private static void dataReceiver()
         {
             while(AsyncReceive.MessageReadbuffer == AsyncReceive.dataMessageCounter)
             {
@@ -193,7 +187,7 @@ namespace UDP_Test
             }
         }
 
-        private enums.IC_type determineSensorType(int Sensor_id)
+        private static enums.IC_type determineSensorType(int Sensor_id)
         {
             if(Sensor_id >=1 && Sensor_id <= 8)
             {
@@ -221,7 +215,7 @@ namespace UDP_Test
             }
         }
 
-        private void resetTempRead()
+        private static void resetTempRead()
         {
             tempRead = 0;
         }

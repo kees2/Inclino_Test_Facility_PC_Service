@@ -75,7 +75,7 @@ namespace UDP_Test
             LineProtocolPoint point;
             for (int i = 0; i < amountInclinos; i++)
             {
-                if ((source[i].data[0].arraySize != 0) & (source[i].data[1].arraySize != 0)){//This should always be like this
+                if ((source[i].data[0].arraySize != 0) & (source[i].data[1].arraySize != 0)){
                     point = convertToPoint(source[i].SensorId, enums.Data_type.INCL_A, source[i].data[0], source[i].icType, "Inclino_measurement");
                     payload.Add(point);
                     point = convertToPoint(source[i].SensorId, enums.Data_type.INCL_B, source[i].data[1], source[i].icType, "Inclino_measurement");

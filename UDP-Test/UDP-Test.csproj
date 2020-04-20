@@ -151,7 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncReceive.cs" />
-    <Compile Include="DataHandler.cs" />
+    <Compile Include="DataParser.cs" />
     <Compile Include="DataProcessor.cs" />
     <Compile Include="enums.cs" />
     <Compile Include="IMU.cs" />

@@ -13,7 +13,8 @@ namespace UDP_Test
         static void Main(string[] args)
         {
 
-            DataHandler datahandler = new DataHandler();
+
+            DataParser.initDataHandler();
 
             while (true)
             {

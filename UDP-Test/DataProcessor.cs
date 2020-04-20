@@ -203,7 +203,7 @@ namespace UDP_Test
         {
             int index = Sensor_Id;
             double returnValue = 0;
-            if (
+            if (//IMU data
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.ACC_Z)
             {
@@ -221,7 +221,7 @@ namespace UDP_Test
                 }
                 imus[determineIndexIMU(Sensor_Id)].addIMUData(Data_type, returnValue);
             }
-            else if (
+            else if (//Inclino data
                 (enums.Data_type)Data_type == enums.Data_type.INCL_A ||
                 (enums.Data_type)Data_type == enums.Data_type.INCL_B)
             {
