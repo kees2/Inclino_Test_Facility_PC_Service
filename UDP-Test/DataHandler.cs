@@ -149,7 +149,7 @@ namespace UDP_Test
 
         void dataReceiver()
         {
-            while(AsyncReceive.MessageReadbuffer + 1 == AsyncReceive.dataMessageCounter)
+            while(AsyncReceive.MessageReadbuffer == AsyncReceive.dataMessageCounter)
             {
                 Thread.Sleep(1);
             }

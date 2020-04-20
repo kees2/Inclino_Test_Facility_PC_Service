@@ -46,7 +46,7 @@ namespace UDP_Test
 
         static void timer_ElapsedS(object sender, System.Timers.ElapsedEventArgs e)
         {
-            Console.WriteLine($"Received: {messageCounter}");
+            //Console.WriteLine($"Received: {messageCounter}");
             messageCounter = 0;
         }
 
@@ -105,6 +105,11 @@ namespace UDP_Test
             byte[] dst = new byte[arr.Length - UDPBytes];//Min de eerste 3 UDP bytes
 
             Array.Copy(arr, UDPBytes, dst, 0, dst.Length);
+
+            if(size != dst.Length)
+            {
+                return null;
+            }
 
             Marshal.Copy(dst, 0, ptr, size);
 

@@ -95,10 +95,12 @@ namespace UDP_Test
         {
             var fields = new Dictionary<string, object>();
 
+            double average = data.calcAverage();
+
             fields.Add("Min_value", data.determineMin());
             fields.Add("Max_value", data.determineMax());
-            fields.Add("AVG_value", data.calcAverage());
-            fields.Add("ERROR_AVG_value", data.calcAverageError());
+            fields.Add("AVG_value", average);
+            fields.Add("ERROR_AVG_value", data.calcAverageError(average));
 
             if (fields.Count == 0)
             {

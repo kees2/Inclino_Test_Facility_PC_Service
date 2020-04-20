@@ -9,7 +9,7 @@ namespace UDP_Test
     public class Data
     {
 
-        private const int bufferSize = 6000;//We only get 1000 messages, but we set it to 2000 to have a buffer
+        private const int bufferSize = 6000;//We only get 1000 messages, but we set it to 1500 to have a buffer
         public double[] dataArray { get; set; }
         public int arraySize { get; set; }
         public double[] DataArray { get; set; }
@@ -51,12 +51,13 @@ namespace UDP_Test
             }
         }
 
-        public double calcAverageError()
+        public double calcAverageError(double average)
         {
             double total = 0;
             for (int i = 0; i < arraySize; i++)
             {
-                total += Math.Abs(dataArray[i]);
+                
+                total += Math.Pow((average - dataArray[i]), 2);
             }
             if (arraySize != 0)
             {
@@ -70,6 +71,7 @@ namespace UDP_Test
 
         public double determineMin()
         {
+            int lowcounter = 0;
             if(arraySize != 0)
             {
                 double minValue = double.MaxValue;
@@ -78,9 +80,13 @@ namespace UDP_Test
                     if (dataArray[i] < minValue)
                     {
                         minValue = dataArray[i];
+                        if(dataArray[i] < -100)
+                        {
+                            lowcounter++;
+                        }
                     }
                 }
-                if(minValue > 600)
+                if(minValue < -100)
                 {
 
                 }

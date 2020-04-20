@@ -19,13 +19,28 @@ namespace UDP_Test
 
         const int amountIMU = amountBMI055 + amountBMI085 + amountLMS6DSO;
 
-        private const int BMI055_angular_rate = 2000;
+        //BMI055 Gyro
+        private const int BMI055_Gyr_rang = 2000;
+        private double BMI055_Gyr_scale;
 
+        //BMI055 Accelerometer
+        private const int BMI055_Acc_rang = 2;//g
+        private double BMI055_acc_Scale;
+
+        //BMI085 Gyro
+        private const int BMI085_Gyr_Angular_Rate = 2000;
+
+        //BMI085 Accelerometer
         private const int BMI085_Acc_rang = 4;//g
-        private const int BMI085_angular_rate = 2000;
+        private double BMI085_acc_Scale;
 
-        private const int LSM6DSM_Acc_rang = 2;//g
+        //LSM6DSM gyro
         private const int LSM6DSM_angular_rate = 250;
+        private double LSM6DSM_Gyr_scale;
+
+        //LSM6DSM Accelerometer
+        private const int LSM6DSM_Acc_rang = 2;//g
+        private double LSM6DSM_acc_Scale;
 
 
         private const int amountInclino = 8;
@@ -56,6 +71,9 @@ namespace UDP_Test
 
         public DataProcessor()
         {
+            //Initialize IMU values that are needed for the calculations
+            initIMUs();
+
             //Initialize the amount of IMU that are needed 
             int j = 0;
             imus = new IMU[amountIMU];
@@ -80,6 +98,104 @@ namespace UDP_Test
                 inclinos[j] = new Inclino(enums.IC_type.SCA103T);
                 inclinos[j].SensorId = i;
                 j++;
+            }
+        }
+
+        public void initIMUs()
+        {
+            //BMI055 Gyroscoop
+            if (BMI055_Gyr_rang == 125)
+            {
+                BMI055_Gyr_scale = 3.8;
+            }
+            else if (BMI055_Gyr_rang == 250)
+            {
+                BMI055_Gyr_scale = 7.6;
+            }
+            else if (BMI055_Gyr_rang == 500)
+            {
+                BMI055_Gyr_scale = 15.3;
+            }
+            else if (BMI055_Gyr_rang == 1000)
+            {
+                BMI055_Gyr_scale = 30.5;
+            }
+            else if (BMI055_Gyr_rang == 2000)
+            {
+                BMI055_Gyr_scale = 61.0;
+            }
+            else
+            {
+                throw new System.ArgumentException("BMI055_Gyro_rang value is not correct", "original");
+            }
+
+            //BMI055 Accelerometer
+            if (BMI055_Acc_rang == 2)
+            {
+                BMI055_acc_Scale = 0.98;
+            }
+            else if (BMI055_Acc_rang == 4)
+            {
+                BMI055_acc_Scale = 1.95;
+            }
+            else if (BMI055_Acc_rang == 8)
+            {
+                BMI055_acc_Scale = 3.91;
+            }
+            else if (BMI055_Acc_rang == 16)
+            {
+                BMI055_acc_Scale = 7.81;
+            }
+            else
+            {
+                throw new System.ArgumentException("BMI055_Acc_rang value is not correct", "original");
+            }
+            
+
+            //BMI085 Accelerometer
+            if (BMI055_Acc_rang == 2)
+            {
+                BMI055_acc_Scale = 0.98;
+            }
+            else if (BMI055_Acc_rang == 4)
+            {
+                BMI055_acc_Scale = 1.95;
+            }
+            else if (BMI055_Acc_rang == 8)
+            {
+                BMI055_acc_Scale = 3.91;
+            }
+            else if (BMI055_Acc_rang == 16)
+            {
+                BMI055_acc_Scale = 7.81;
+            }
+            else
+            {
+                throw new System.ArgumentException("BMI055_Acc_rang value is not correct", "original");
+            }
+
+
+
+            //LSM6DSM Accelerometer
+            if (LSM6DSM_Acc_rang == 2)
+            {
+                LSM6DSM_acc_Scale = 0.061;
+            }
+            else if (LSM6DSM_Acc_rang == 4)
+            {
+                LSM6DSM_acc_Scale = 0.122;
+            }
+            else if (LSM6DSM_Acc_rang == 8)
+            {
+                LSM6DSM_acc_Scale = 0.244;
+            }
+            else if (LSM6DSM_Acc_rang == 16)
+            {
+                LSM6DSM_acc_Scale = 0.488;
+            }
+            else
+            {
+                throw new System.ArgumentException("LSM6DSM_Acc_rang value is not correct", "original");
             }
         }
 
@@ -228,18 +344,19 @@ namespace UDP_Test
 
         private double calculateLSM6DSM(int data, int Data_type)
         {
+            data = (Int16)data;
             double returnValue;
             if (
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
-                data = (Int16)data;
-                returnValue = (LSM6DSM_angular_rate / 32767) * data;
+                returnValue = data / 1000;
+                //returnValue = (LSM6DSM_angular_rate / 32767) * data;
             }
             else
             {
-                data = (Int16)data;
-                returnValue = (data / 32768) * 1000 * 2 ^ (LSM6DSM_Acc_rang + 1);
+                returnValue = (LSM6DSM_acc_Scale * data) / 1000;
+                //returnValue = (data / 32768) * 1000 * 2 ^ (LSM6DSM_Acc_rang + 1);
             }
             return returnValue;
         }
@@ -250,7 +367,7 @@ namespace UDP_Test
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
-                returnValue = (BMI085_angular_rate / 32767) * data;
+                returnValue = (data / 32767) * BMI085_Gyr_Angular_Rate;
             }
             else
             {
@@ -263,17 +380,22 @@ namespace UDP_Test
         private double calculateBMI055(int data, int Data_type)
         {
             double returnValue;
-            data = (data >> 11) == 0 ? data : -1 ^ 0xFFF | data;
+
             if (
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
-                returnValue = (BMI055_angular_rate / 32767) * data;
+                data = (data >> 15) == 0 ? data : -1 ^ 0xFFFF | data;
+                returnValue = (BMI055_Gyr_scale * data) / 1000;
+                //(dev->gyrX * dev->gyrScale) / 1000.0;
             }
             else
             {
-                returnValue = data * 0.98;
+                data = (data >> 11) == 0 ? data : -1 ^ 0xFFF | data;
+                //1000 is translation to g
+                returnValue = data * BMI055_acc_Scale / 1000;
             }
+
             return returnValue;
         }
     }
