@@ -31,7 +31,6 @@ namespace ITF_PC_Service
 
         private static DataProcessor dataProcessor = new DataProcessor();
         private static Influxdb1_7 influx17 = new Influxdb1_7();
-        private static UDPSend udpSendserver = new UDPSend();
 
         public static void initDataHandler()
         {
@@ -46,8 +45,6 @@ namespace ITF_PC_Service
             Console.WriteLine("OffsetInitialisation finished");
             dataProcessor.resetIMUs();
             dataProcessor.resetInclinos();
-
-            udpSendserver.initUDPSend();
 
             makeThreads();
             InitTimer();
@@ -84,8 +81,6 @@ namespace ITF_PC_Service
             dataProcessor.resetIMUs();
             dataProcessor.resetInclinos();
 
-            udpSendserver.sendTemp(desiredTemperature);
-
             //Console.WriteLine("amount packages{0}", testcounterAmountMessages);
             //Console.WriteLine("amount temperature{0}", tempCounter);
             tempCounter = 0;
@@ -102,9 +97,6 @@ namespace ITF_PC_Service
                 newThread.Name = String.Format("ThreadReceive{0}", i + 1);
                 newThread.Start();
             }
-            Thread newThread2 = new Thread(new ThreadStart(ThreadReceiveTempdata));
-            newThread2.Name = String.Format("ThreadReceiveTempdata{0}", 1);
-            newThread2.Start();
         }
                               
         private static void ThreadProcReceive()
@@ -112,32 +104,6 @@ namespace ITF_PC_Service
             while (true)
             {
                 dataReceiver();
-            }
-        }
-
-        private static void ThreadReceiveTempdata()
-        {
-            while (true)
-            {
-                byte inputValue;
-                Console.Write("Desired temperature: ");
-                string userInput = Console.ReadLine();
-                try
-                {
-                    inputValue = Convert.ToByte(userInput);
-                    if (inputValue > 80)
-                    {
-                        Console.WriteLine("The temperature value of {0} is too high, do you want to damage the system?", inputValue);
-                    }
-                    else
-                    {
-                        desiredTemperature = inputValue;
-                    }
-                }
-                catch (FormatException e)
-                {
-                    Console.WriteLine("Inputvalue is not between 0 and 80");
-                }
             }
         }
 
