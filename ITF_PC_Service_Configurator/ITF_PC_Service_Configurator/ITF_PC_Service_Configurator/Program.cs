@@ -10,6 +10,7 @@ namespace ITF_PC_Service_Configurator
     {
         static void Main(string[] args)
         {
+            UDPSend.initUDPSend();
             byte desiredTemperature = 0;
             while (true)
             {
