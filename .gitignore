@@ -23,3 +23,7 @@ $RECYCLE.BIN/
 # =========================
 
 .vs/
+
+ITF_PC_Service/bin/
+
+ITF_PC_Service/obj/

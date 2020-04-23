@@ -8,10 +8,11 @@ namespace ITF_PC_Service
 {
     public class Inclino
     {
-        private const int amountInclinoAtributes = 3;//InclinoA & InclinoB & InclinoTotaal
+        private const int amountInclinoAtributes = 4;//InclinoA & InclinoB & InclinoTotaal
         public InclinoData[] data = new InclinoData[amountInclinoAtributes];
         public int SensorId { get; set; }
         public enums.IC_type icType;
+        
 
         public Inclino(enums.IC_type type)
         {
@@ -31,6 +32,10 @@ namespace ITF_PC_Service
             else if ((enums.Data_type)Data_type == enums.Data_type.INCL_B)
             {
                 data[1].addData(newData);
+            }
+            else if ((enums.Data_type)Data_type == enums.Data_type.VREF)
+            {
+                data[3].addData(newData);
             }
         }
 

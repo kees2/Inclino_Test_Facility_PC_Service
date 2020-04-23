@@ -31,7 +31,7 @@ namespace ITF_PC_Service
         private const int BMI085_Gyr_Angular_Rate = 2000;
 
         //BMI085 Accelerometer
-        private const int BMI085_Acc_rang = 4;//g
+        private const int BMI085_Acc_rang = 0;//2g
         private double BMI085_acc_Scale;
 
         //LSM6DSM gyro
@@ -132,7 +132,7 @@ namespace ITF_PC_Service
             //BMI055 Accelerometer
             if (BMI055_Acc_rang == 2)
             {
-                BMI055_acc_Scale = 0.98;
+                BMI055_acc_Scale = 0.97;
             }
             else if (BMI055_Acc_rang == 4)
             {
@@ -223,7 +223,8 @@ namespace ITF_PC_Service
             }
             else if (//Inclino data
                 (enums.Data_type)Data_type == enums.Data_type.INCL_A ||
-                (enums.Data_type)Data_type == enums.Data_type.INCL_B)
+                (enums.Data_type)Data_type == enums.Data_type.INCL_B ||
+                (enums.Data_type)Data_type == enums.Data_type.VREF)
             {
                 inclinos[determineIndexInclino(Sensor_Id)].addInclinoData(Data_type, data);
             }
@@ -284,7 +285,7 @@ namespace ITF_PC_Service
             if (ic_type == enums.IC_type.BMI55)
             {
                 sbyte BMI055Temp = (sbyte)temp;
-                return 23 + 0.5 * BMI055Temp;
+                return 23 + (0.5 * BMI055Temp);
 
             }
             else if (ic_type == enums.IC_type.BMI085)
@@ -302,7 +303,7 @@ namespace ITF_PC_Service
                 {
                     BMI085Temp_int11 -= 2048;
                 }
-                return (BMI085Temp_int11 * 0.125) + 23;
+                return ((double)BMI085Temp_int11 * 0.125) + 23;
             }
             else if (ic_type == enums.IC_type.LMS6DSO)
             {
@@ -310,11 +311,17 @@ namespace ITF_PC_Service
                 //Temperature sensitivity 256 LSB/°C
                 //The output of the temperature sensor is 0 LSB (typ.) at 25 °C
                 short LMS6DSOTemp_int16 = (short)temp;
-                return 25 + (LMS6DSOTemp_int16 / 256);
+                double LMS6DSOTemp_double = (double)LMS6DSOTemp_int16;
+                return 25 + (LMS6DSOTemp_double / 256);
             }
             else if (ic_type == enums.IC_type.MS5611_01BA03)
             {
-                return (temp / 100);
+                double double_temp = (double)temp;
+                if(double_temp < 0)
+                {
+
+                }
+                return (double_temp / 100);
             }
 
                 return 1;
@@ -355,7 +362,7 @@ namespace ITF_PC_Service
             }
             else
             {
-                returnValue = (LSM6DSM_acc_Scale * data) / 1000;
+                returnValue = (LSM6DSM_acc_Scale * data);
                 //returnValue = (data / 32768) * 1000 * 2 ^ (LSM6DSM_Acc_rang + 1);
             }
             return returnValue;
@@ -367,12 +374,16 @@ namespace ITF_PC_Service
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
-                returnValue = (data / 32767) * BMI085_Gyr_Angular_Rate;
+                data = (Int16)data;
+                double double_data = (double)data;
+                returnValue = (double_data / 32767) * BMI085_Gyr_Angular_Rate;
             }
             else
             {
                 data = (Int16)data;
-                returnValue = (data / 32768) * 1000 * 2 ^ (BMI085_Acc_rang + 1);
+                double double_data = (double)data;
+                returnValue = (double_data / 32768) * 1000 * Math.Pow(2 , (BMI085_Acc_rang + 1));
+
             }
             return returnValue;
         }
@@ -386,14 +397,19 @@ namespace ITF_PC_Service
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
                 data = (data >> 15) == 0 ? data : -1 ^ 0xFFFF | data;
-                returnValue = (BMI055_Gyr_scale * data) / 1000;
+                returnValue = (BMI055_Gyr_scale * data);
                 //(dev->gyrX * dev->gyrScale) / 1000.0;
             }
             else
             {
+                int oudeData = data;
                 data = (data >> 11) == 0 ? data : -1 ^ 0xFFF | data;
                 //1000 is translation to g
-                returnValue = data * BMI055_acc_Scale / 1000;
+                returnValue = data * BMI055_acc_Scale;
+                if(returnValue > 0.9)
+                {
+
+                }
             }
 
             return returnValue;

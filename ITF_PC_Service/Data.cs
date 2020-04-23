@@ -110,6 +110,10 @@ namespace ITF_PC_Service
                     maxValue = dataArray[i];
                 }
             }
+            if(maxValue > 1000)
+            {
+
+            }
             return maxValue;
         }
 

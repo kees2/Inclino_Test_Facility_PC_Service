@@ -83,6 +83,8 @@ namespace ITF_PC_Service
                     source[i].calculateAllDifferential();
                     point = convertToPoint(source[i].SensorId, enums.Data_type.INCL, source[i].data[2], source[i].icType, "Inclino_measurement");
                     payload.Add(point);
+                    point = convertToPoint(source[i].SensorId, enums.Data_type.VREF, source[i].data[3], source[i].icType, "Inclino_measurement");
+                    payload.Add(point);
                 }
             }
             var result  = client.WriteAsync(payload);
@@ -101,6 +103,24 @@ namespace ITF_PC_Service
             fields.Add("Max_value", data.determineMax());
             fields.Add("AVG_value", average);
             fields.Add("ERROR_AVG_value", data.calcAverageError(average));
+
+            if (ic_type == enums.IC_type.BMI55 && data_type == enums.Data_type.ACC_X && sensor_id == (int)enums.Sensor_Id.BMI055_6)
+            {
+                int j = 0;
+                int k;
+                if (data.determineMax() > 500)
+                {
+                    for(int i = 0; i < data.arraySize; i++)
+                    {
+                        if (data.dataArray[i] > 200)
+                        {
+                            j++;
+                            k = i;
+                        }
+                    }
+
+                }
+            }
 
             if (fields.Count == 0)
             {
