@@ -294,8 +294,8 @@ namespace ITF_PC_Service
                 // typ = 0.125
                 // Units K/LSB
 
-                byte msb = (byte)(temp >> 8);
-                byte lsb = (byte)(temp);
+                UInt16 msb = (byte)(temp >> 8);
+                UInt16 lsb = (byte)(temp);
 
                 int BMI085Temp_int11 = (msb * 8) + (lsb / 32);
 
@@ -333,18 +333,22 @@ namespace ITF_PC_Service
             for (int i = 0; i < amountBMI055; i++)
             {
                 imus[i].calculateIMUOffset();
+                imus[i].saveIMUOffsets();
             }
             for (int i = 0; i < amountBMI085; i++)
             {
                 imus[amountBMI055 + i].calculateIMUOffset();
+                imus[i].saveIMUOffsets();
             }
             for (int i = 0; i < amountLMS6DSO; i++)
             {
                 imus[amountBMI055 + amountBMI085 + i].calculateIMUOffset();
+                imus[i].saveIMUOffsets();
             }
             for (int i = (int)enums.Sensor_Id.SCA103T_0; i < (int)enums.Sensor_Id.SCA103T_0 + amountInclino; i++)
             {
                 inclinos[j].calculateInclinoOffset();
+                inclinos[j].saveInclinoOffsets();
                 j++;
             }
         }

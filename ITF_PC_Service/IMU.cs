@@ -46,6 +46,22 @@ namespace ITF_PC_Service
                 data[i].calculateOffset();
             }
         }
+
+        public void saveIMUOffsets()
+        {
+            string[] lines = new string[amountIMUAtributes+1];//1 for the sensor id
+
+            enums.Sensor_Id write_sensor_Id = (enums.Sensor_Id)SensorId;
+
+            lines[0] = write_sensor_Id.ToString();
+
+            for(int i = 0; i < amountIMUAtributes; i++)
+            {
+                lines[i + 1] = data[i].offset.ToString();
+                System.IO.File.WriteAllLines(@"C:\Users\Kees\Documents\Kraken\Inclino_Test_Facility_PC_Service\Offsets\BMI_Offsets.txt", lines);
+            }
+        }
+
     }
 }
 

@@ -72,6 +72,18 @@ namespace ITF_PC_Service
         }
 
 
+        public void saveInclinoOffsets()
+        {
+            string[] lines = new string[amountInclinoAtributes + 1];//1 for the sensor id
+
+            lines[0] = SensorId.ToString();
+
+            for (int i = 0; i < amountInclinoAtributes; i++)
+            {
+                lines[i + 1] = data[i].offset.ToString();
+                System.IO.File.WriteAllLines(@"C:\Users\Kees\Documents\Kraken\Inclino_Test_Facility_PC_Service\Offsets\Inclino_Offsets.txt", lines);
+            }
+        }
     }
 
 

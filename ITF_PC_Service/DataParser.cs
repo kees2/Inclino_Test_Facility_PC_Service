@@ -81,11 +81,7 @@ namespace ITF_PC_Service
             dataProcessor.resetIMUs();
             dataProcessor.resetInclinos();
 
-            //Console.WriteLine("amount packages{0}", testcounterAmountMessages);
-            //Console.WriteLine("amount temperature{0}", tempCounter);
-            tempCounter = 0;
             tempRead = 0;
-            testcounterAmountMessages = 0;
             Baroread = false;
         }
 
@@ -128,7 +124,6 @@ namespace ITF_PC_Service
                     {
                         if ((tempRead & (1 << messages[i].Sensor_Id)) == 0)
                         {
-                            tempCounter++;
                             enums.IC_type ic_type = determineSensorType(messages[i].Sensor_Id);
                             influx17.addData(messages[i].Sensor_Id, (enums.Data_type)messages[i].Data_type, dataProcessor.calculateTempDegrees(messages[i].data, ic_type), ic_type); 
                             tempRead |= (1 << (messages[i].Sensor_Id));
@@ -149,7 +144,6 @@ namespace ITF_PC_Service
                         Console.WriteLine("Data Invalid: Sensor_Id {0}, Data type {1}, data {2}", messages[i].Sensor_Id, messages[i].Data_type, messages[i].data);
                     }
                 }
-                testcounterAmountMessages++;
             }
         }
 
