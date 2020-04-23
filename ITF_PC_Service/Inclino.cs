@@ -81,7 +81,7 @@ namespace ITF_PC_Service
             for (int i = 0; i < amountInclinoAtributes; i++)
             {
                 lines[i + 1] = data[i].offset.ToString();
-                System.IO.File.WriteAllLines(@"C:\Users\Kees\Documents\Kraken\Inclino_Test_Facility_PC_Service\Offsets\Inclino_Offsets.txt", lines);
+                System.IO.File.WriteAllLines(@"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\offsets\BMI_Offsets", lines);
             }
         }
     }

@@ -284,8 +284,11 @@ namespace ITF_PC_Service
             //Temp value is 8 bits 
             if (ic_type == enums.IC_type.BMI55)
             {
-                sbyte BMI055Temp = (sbyte)temp;
-                return 23 + (0.5 * BMI055Temp);
+                if(temp > 127)
+                {
+                    temp -= 256;
+                }
+                return 23 + (0.5 * temp);
 
             }
             else if (ic_type == enums.IC_type.BMI085)
@@ -293,17 +296,11 @@ namespace ITF_PC_Service
                 // Temperature Sensor slope
                 // typ = 0.125
                 // Units K/LSB
-
-                UInt16 msb = (byte)(temp >> 8);
-                UInt16 lsb = (byte)(temp);
-
-                int BMI085Temp_int11 = (msb * 8) + (lsb / 32);
-
-                if (BMI085Temp_int11 > 1023)
+                if (temp > 1023)
                 {
-                    BMI085Temp_int11 -= 2048;
+                    temp -= 2048;
                 }
-                return ((double)BMI085Temp_int11 * 0.125) + 23;
+                return ((double)temp * 0.125) + 23;
             }
             else if (ic_type == enums.IC_type.LMS6DSO)
             {
