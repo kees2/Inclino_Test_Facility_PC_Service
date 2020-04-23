@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace ITF_PC_Service
 {
@@ -14,6 +15,7 @@ namespace ITF_PC_Service
         public int SensorId{ get; set; }
         public enums.IC_type icType;
         private int enumCorrection = 1;
+        private const string path = @"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\offsets\BMI_offset.txt";
 
         public IMU(enums.IC_type type)
         {
@@ -49,16 +51,34 @@ namespace ITF_PC_Service
 
         public void saveIMUOffsets()
         {
+            StreamWriter sw = File.CreateText(path);
             string[] lines = new string[amountIMUAtributes+1];//1 for the sensor id
 
             enums.Sensor_Id write_sensor_Id = (enums.Sensor_Id)SensorId;
 
-            lines[0] = write_sensor_Id.ToString();
 
-            for(int i = 0; i < amountIMUAtributes; i++)
+            using (sw = File.AppendText(path))
             {
-                lines[i + 1] = data[i].offset.ToString();
-                System.IO.File.WriteAllLines(@"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\Offsets\BMI_Offsets.txt", lines);
+                sw.WriteLine(write_sensor_Id.ToString());
+                for (int i = 0; i < amountIMUAtributes; i++)
+                {
+                    sw.WriteLine(data[i].offset);
+                }    
+            }
+        }
+        public void readIMUOffsets()
+        {
+            using (StreamReader sr = File.OpenText(path))
+            {
+                string read_sensor_Id = ((enums.Sensor_Id)SensorId).ToString();
+                string s = "";
+                while ((sr.ReadLine()) != read_sensor_Id)
+                {
+                }
+                for (int i = 0; i < amountIMUAtributes; i++)
+                {
+                    Convert.ToDouble(sr.ReadLine());
+                }
             }
         }
 
