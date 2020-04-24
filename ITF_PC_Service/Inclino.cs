@@ -75,6 +75,9 @@ namespace ITF_PC_Service
 
         public void saveInclinoOffsets(string path)
         {
+            if (!File.Exists(path)){
+                File.CreateText(path);
+            }
             StreamWriter sw = File.CreateText(path);
 
             enums.Sensor_Id write_sensor_Id = (enums.Sensor_Id)SensorId;
@@ -91,6 +94,9 @@ namespace ITF_PC_Service
         }
         public void readInclinoOffsets(string path)
         {
+            if (!File.Exists(path)){
+                File.CreateText(path);
+            }
             using (StreamReader sr = File.OpenText(path))
             {
                 string read_sensor_Id = ((enums.Sensor_Id)SensorId).ToString();

@@ -18,6 +18,7 @@ namespace ITF_PC_Service
         public Data()
         {
             arraySize = 0;
+            offset = 0;
             dataArray = new double[bufferSize];
         }
 

@@ -12,7 +12,8 @@ namespace ITF_PC_Service
     public class DataProcessor
     {
 
-        private const string path = @"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\offsets\BMI_offset.txt";
+        private const string pathIMU = @"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\offsets\BMI_offset.txt";
+        private const string pathAccelerometer = @"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\offsets\Accelero_offset.txt";
 
         private const int sensorOffset = 1;
 
@@ -334,7 +335,7 @@ namespace ITF_PC_Service
         public void CalculateOffset()
         {
 
-            if (!File.Exists(path))
+            if (!File.Exists(pathAccelerometer) || !File.Exists(pathAccelerometer))
             {
                 startoffsetTimer();
 
@@ -347,22 +348,22 @@ namespace ITF_PC_Service
                 for (int i = 0; i < amountBMI055; i++)
                 {
                     imus[i].calculateIMUOffset();
-                    imus[i].saveIMUOffsets(path);
+                    imus[i].saveIMUOffsets(pathIMU);
                 }
                 for (int i = 0; i < amountBMI085; i++)
                 {
                     imus[amountBMI055 + i].calculateIMUOffset();
-                    imus[amountBMI055 + i].saveIMUOffsets(path);
+                    imus[amountBMI055 + i].saveIMUOffsets(pathIMU);
                 }
                 for (int i = 0; i < amountLMS6DSO; i++)
                 {
                     imus[amountBMI055 + amountBMI085 + i].calculateIMUOffset();
-                    imus[amountBMI055 + amountBMI085 + i].saveIMUOffsets(path);
+                    imus[amountBMI055 + amountBMI085 + i].saveIMUOffsets(pathIMU);
                 }
                 for (int i = (int)enums.Sensor_Id.SCA103T_0; i < (int)enums.Sensor_Id.SCA103T_0 + amountInclino; i++)
                 {
                     inclinos[j].calculateInclinoOffset();
-                    inclinos[j].saveInclinoOffsets(path);
+                    inclinos[j].saveInclinoOffsets(pathAccelerometer);
                     j++;
                 }
             }
@@ -371,19 +372,19 @@ namespace ITF_PC_Service
                 int j = 0;
                 for (int i = 0; i < amountBMI055; i++)
                 {
-                    imus[i].readIMUOffsets(path);
+                    imus[i].readIMUOffsets(pathIMU);
                 }
                 for (int i = 0; i < amountBMI085; i++)
                 {
-                    imus[i].readIMUOffsets(path);
+                    imus[i].readIMUOffsets(pathIMU);
                 }
                 for (int i = 0; i < amountLMS6DSO; i++)
                 {
-                    imus[i].readIMUOffsets(path);
+                    imus[i].readIMUOffsets(pathIMU);
                 }
                 for (int i = (int)enums.Sensor_Id.SCA103T_0; i < (int)enums.Sensor_Id.SCA103T_0 + amountInclino; i++)
                 {
-                    inclinos[j].readInclinoOffsets(path);
+                    inclinos[j].readInclinoOffsets(pathAccelerometer);
                     j++;
                 }
             }
