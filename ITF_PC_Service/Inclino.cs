@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace ITF_PC_Service
 {
@@ -12,7 +13,6 @@ namespace ITF_PC_Service
         public InclinoData[] data = new InclinoData[amountInclinoAtributes];
         public int SensorId { get; set; }
         public enums.IC_type icType;
-        
 
         public Inclino(enums.IC_type type)
         {
@@ -72,16 +72,36 @@ namespace ITF_PC_Service
         }
 
 
-        public void saveInclinoOffsets()
+
+        public void saveInclinoOffsets(string path)
         {
-            string[] lines = new string[amountInclinoAtributes + 1];//1 for the sensor id
+            StreamWriter sw = File.CreateText(path);
 
-            lines[0] = SensorId.ToString();
+            enums.Sensor_Id write_sensor_Id = (enums.Sensor_Id)SensorId;
 
-            for (int i = 0; i < amountInclinoAtributes; i++)
+
+            using (sw = File.AppendText(path))
             {
-                lines[i + 1] = data[i].offset.ToString();
-                System.IO.File.WriteAllLines(@"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\offsets\BMI_Offsets", lines);
+                sw.WriteLine(write_sensor_Id.ToString());
+                for (int i = 0; i < amountInclinoAtributes-1; i++)
+                {
+                    sw.WriteLine(data[i].offset);
+                }
+            }
+        }
+        public void readInclinoOffsets(string path)
+        {
+            using (StreamReader sr = File.OpenText(path))
+            {
+                string read_sensor_Id = ((enums.Sensor_Id)SensorId).ToString();
+                string s = "";
+                while ((sr.ReadLine()) != read_sensor_Id)
+                {
+                }
+                for (int i = 0; i < amountInclinoAtributes-1; i++)
+                {
+                    Convert.ToDouble(sr.ReadLine());
+                }
             }
         }
     }

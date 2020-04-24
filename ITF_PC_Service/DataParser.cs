@@ -10,14 +10,11 @@ namespace ITF_PC_Service
 {
     public static class DataParser
     {
-        static byte desiredTemperature = 40;
         static int tempRead = 0;
         static int testcounterAmountMessages = 0;
         static int tempCounter = 0;
         static bool Baroread = false;
-        static int offsetTimerInterval = 2000;
-        static bool offsetTimerDone = false;
-        static System.Timers.Timer OffsetTimer = new System.Timers.Timer();
+        static int desiredOffsetTemperature = 30;
 
         public struct databaseMessage
         {
@@ -36,11 +33,8 @@ namespace ITF_PC_Service
         {
             influx17.initDB();
             AsyncReceive.ReceiveMessages();
-            startoffsetTimer();
-            while (!offsetTimerDone)
-            {
-                dataReceiver();
-            }
+            dataReceiver();
+            temperatureCheck();
             dataProcessor.CalculateOffset();
             Console.WriteLine("OffsetInitialisation finished");
             dataProcessor.resetIMUs();
@@ -59,18 +53,6 @@ namespace ITF_PC_Service
             timerS.Start();
         }
 
-        private static void startoffsetTimer()
-        {
-            OffsetTimer.Interval = offsetTimerInterval;
-            OffsetTimer.Elapsed += offsettimer_Elapsed;
-            OffsetTimer.Start();
-        }
-
-        private static void offsettimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            offsetTimerDone = true;
-            OffsetTimer.Stop();
-        }
 
         //Send all buffered data to the influx database
         private static void timer_ElapsedS(object sender, System.Timers.ElapsedEventArgs e)
@@ -100,6 +82,39 @@ namespace ITF_PC_Service
             while (true)
             {
                 dataReceiver();
+            }
+        }
+
+        private static void temperatureCheck()
+        {
+            int ITFTemp = 0;
+            while(desiredOffsetTemperature != ITFTemp) { 
+
+                while (AsyncReceive.MessageReadbuffer == AsyncReceive.dataMessageCounter)
+                {
+                    Thread.Sleep(1);
+                }
+                AsyncReceive.dataMessage[] messages = AsyncReceive.messageBuffer[AsyncReceive.MessageReadbuffer];
+
+                AsyncReceive.MessageReadbuffer++;
+                if (AsyncReceive.MessageReadbuffer == 1000)
+                {
+                    AsyncReceive.MessageReadbuffer = 0;
+                }
+                if (messages != null)
+                {
+                    for (int i = 0; i < messages.Length; i++)
+                    {
+                        if ((enums.Data_type)messages[i].Data_type == enums.Data_type.TEMP)
+                        {
+                            enums.IC_type ic_type = determineSensorType(messages[i].Sensor_Id);
+                            if (ic_type == enums.IC_type.MS5611_01BA03)
+                            {
+                                ITFTemp = (int)dataProcessor.calculateTempDegrees(messages[i].data, ic_type);
+                            }
+                        }
+                    }
+                }
             }
         }
 

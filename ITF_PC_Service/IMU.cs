@@ -15,7 +15,7 @@ namespace ITF_PC_Service
         public int SensorId{ get; set; }
         public enums.IC_type icType;
         private int enumCorrection = 1;
-        private const string path = @"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\offsets\BMI_offset.txt";
+
 
         public IMU(enums.IC_type type)
         {
@@ -49,10 +49,9 @@ namespace ITF_PC_Service
             }
         }
 
-        public void saveIMUOffsets()
+        public void saveIMUOffsets(string path)
         {
             StreamWriter sw = File.CreateText(path);
-            string[] lines = new string[amountIMUAtributes+1];//1 for the sensor id
 
             enums.Sensor_Id write_sensor_Id = (enums.Sensor_Id)SensorId;
 
@@ -66,7 +65,7 @@ namespace ITF_PC_Service
                 }    
             }
         }
-        public void readIMUOffsets()
+        public void readIMUOffsets(string path)
         {
             using (StreamReader sr = File.OpenText(path))
             {
@@ -77,7 +76,7 @@ namespace ITF_PC_Service
                 }
                 for (int i = 0; i < amountIMUAtributes; i++)
                 {
-                    Convert.ToDouble(sr.ReadLine());
+                    data[i].offset = Convert.ToDouble(sr.ReadLine());
                 }
             }
         }

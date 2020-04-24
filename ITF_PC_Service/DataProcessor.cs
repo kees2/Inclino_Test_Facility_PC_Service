@@ -4,14 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using System.IO;
 
 
 namespace ITF_PC_Service
 {
     public class DataProcessor
     {
-        private const int sensorOffset = 1;
 
+        private const string path = @"C:\Users\Testfacility\Documents\Github\Inclino_Test_Facility_PC_Service\offsets\BMI_offset.txt";
+
+        private const int sensorOffset = 1;
 
         private const int amountBMI055 = 8;
         private const int amountBMI085 = 1;
@@ -20,7 +23,7 @@ namespace ITF_PC_Service
         const int amountIMU = amountBMI055 + amountBMI085 + amountLMS6DSO;
 
         //BMI055 Gyro
-        private const int BMI055_Gyr_rang = 2000;
+        private const int BMI055_Gyr_rang = 125;
         private double BMI055_Gyr_scale;
 
         //BMI055 Accelerometer
@@ -28,14 +31,14 @@ namespace ITF_PC_Service
         private double BMI055_acc_Scale;
 
         //BMI085 Gyro
-        private const int BMI085_Gyr_Angular_Rate = 2000;
+        private const int BMI085_Gyr_Angular_Rate = 125;
 
         //BMI085 Accelerometer
         private const int BMI085_Acc_rang = 0;//2g
         private double BMI085_acc_Scale;
 
         //LSM6DSM gyro
-        private const int LSM6DSM_angular_rate = 250;
+        private const int LSM6DSM_angular_rate = 125;
         private double LSM6DSM_Gyr_scale;
 
         //LSM6DSM Accelerometer
@@ -68,6 +71,10 @@ namespace ITF_PC_Service
             get { return imus; }
             set { imus = IMUS; }
         }
+
+        static int offsetTimerInterval = 2000;
+        static bool offsetTimerDone = false;
+        static System.Timers.Timer OffsetTimer = new System.Timers.Timer();
 
         public DataProcessor()
         {
@@ -106,23 +113,23 @@ namespace ITF_PC_Service
             //BMI055 Gyroscoop
             if (BMI055_Gyr_rang == 125)
             {
-                BMI055_Gyr_scale = 3.8;
+                BMI055_Gyr_scale = 3.8/1000;
             }
             else if (BMI055_Gyr_rang == 250)
             {
-                BMI055_Gyr_scale = 7.6;
+                BMI055_Gyr_scale = 7.6/1000;
             }
             else if (BMI055_Gyr_rang == 500)
             {
-                BMI055_Gyr_scale = 15.3;
+                BMI055_Gyr_scale = 15.3/1000;
             }
             else if (BMI055_Gyr_rang == 1000)
             {
-                BMI055_Gyr_scale = 30.5;
+                BMI055_Gyr_scale = 30.5/1000;
             }
             else if (BMI055_Gyr_rang == 2000)
             {
-                BMI055_Gyr_scale = 61.0;
+                BMI055_Gyr_scale = 61.0/1000;
             }
             else
             {
@@ -326,27 +333,59 @@ namespace ITF_PC_Service
 
         public void CalculateOffset()
         {
-            int j = 0;
-            for (int i = 0; i < amountBMI055; i++)
+
+            if (!File.Exists(path))
             {
-                imus[i].calculateIMUOffset();
-                imus[i].saveIMUOffsets();
+                startoffsetTimer();
+
+                while (!offsetTimerDone)
+                {
+
+                }
+
+                int j = 0;
+                for (int i = 0; i < amountBMI055; i++)
+                {
+                    imus[i].calculateIMUOffset();
+                    imus[i].saveIMUOffsets(path);
+                }
+                for (int i = 0; i < amountBMI085; i++)
+                {
+                    imus[amountBMI055 + i].calculateIMUOffset();
+                    imus[i].saveIMUOffsets(path);
+                }
+                for (int i = 0; i < amountLMS6DSO; i++)
+                {
+                    imus[amountBMI055 + amountBMI085 + i].calculateIMUOffset();
+                    imus[i].saveIMUOffsets(path);
+                }
+                for (int i = (int)enums.Sensor_Id.SCA103T_0; i < (int)enums.Sensor_Id.SCA103T_0 + amountInclino; i++)
+                {
+                    inclinos[j].calculateInclinoOffset();
+                    inclinos[j].saveInclinoOffsets(path);
+                    j++;
+                }
             }
-            for (int i = 0; i < amountBMI085; i++)
+            else
             {
-                imus[amountBMI055 + i].calculateIMUOffset();
-                imus[i].saveIMUOffsets();
-            }
-            for (int i = 0; i < amountLMS6DSO; i++)
-            {
-                imus[amountBMI055 + amountBMI085 + i].calculateIMUOffset();
-                imus[i].saveIMUOffsets();
-            }
-            for (int i = (int)enums.Sensor_Id.SCA103T_0; i < (int)enums.Sensor_Id.SCA103T_0 + amountInclino; i++)
-            {
-                inclinos[j].calculateInclinoOffset();
-                inclinos[j].saveInclinoOffsets();
-                j++;
+                int j = 0;
+                for (int i = 0; i < amountBMI055; i++)
+                {
+                    imus[i].readIMUOffsets(path);
+                }
+                for (int i = 0; i < amountBMI085; i++)
+                {
+                    imus[i].readIMUOffsets(path);
+                }
+                for (int i = 0; i < amountLMS6DSO; i++)
+                {
+                    imus[i].readIMUOffsets(path);
+                }
+                for (int i = (int)enums.Sensor_Id.SCA103T_0; i < (int)enums.Sensor_Id.SCA103T_0 + amountInclino; i++)
+                {
+                    inclinos[j].readInclinoOffsets(path);
+                    j++;
+                }
             }
         }
 
@@ -403,17 +442,25 @@ namespace ITF_PC_Service
             }
             else
             {
-                int oudeData = data;
                 data = (data >> 11) == 0 ? data : -1 ^ 0xFFF | data;
                 //1000 is translation to g
                 returnValue = data * BMI055_acc_Scale;
-                if(returnValue > 0.9)
-                {
-
-                }
             }
 
             return returnValue;
+        }
+
+        private static void startoffsetTimer()
+        {
+            OffsetTimer.Interval = offsetTimerInterval;
+            OffsetTimer.Elapsed += offsettimer_Elapsed;
+            OffsetTimer.Start();
+        }
+
+        private static void offsettimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            offsetTimerDone = true;
+            OffsetTimer.Stop();
         }
     }
 }
