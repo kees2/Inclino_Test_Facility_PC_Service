@@ -122,7 +122,7 @@ namespace ITF_PC_Service
             }
             else if (BMI055_Gyr_rang == 2000)
             {
-                BMI055_Gyr_scale = 61.0;
+                BMI055_Gyr_scale = 61.0/1000;
             }
             else
             {
@@ -335,12 +335,12 @@ namespace ITF_PC_Service
             for (int i = 0; i < amountBMI085; i++)
             {
                 imus[amountBMI055 + i].calculateIMUOffset();
-                imus[i].saveIMUOffsets();
+                imus[amountBMI055 + i].saveIMUOffsets();
             }
             for (int i = 0; i < amountLMS6DSO; i++)
             {
                 imus[amountBMI055 + amountBMI085 + i].calculateIMUOffset();
-                imus[i].saveIMUOffsets();
+                imus[amountBMI055 + amountBMI085 + i].saveIMUOffsets();
             }
             for (int i = (int)enums.Sensor_Id.SCA103T_0; i < (int)enums.Sensor_Id.SCA103T_0 + amountInclino; i++)
             {
