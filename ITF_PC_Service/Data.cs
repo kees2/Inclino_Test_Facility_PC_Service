@@ -34,7 +34,6 @@ namespace ITF_PC_Service
             arraySize++;
         }
 
-        //als arraysize 0 is afvangen
         public double calcAverage()
         {
             double total = 0;
@@ -48,7 +47,7 @@ namespace ITF_PC_Service
             }
             else
             {
-                return 0;
+                return double.MinValue;
             }
         }
 
@@ -66,56 +65,51 @@ namespace ITF_PC_Service
             }
             else
             {
-                return 0;
+                return double.MinValue;
             }
         }
 
         public double determineMin()
         {
-            int lowcounter = 0;
             if(arraySize != 0)
             {
                 double minValue = double.MaxValue;
                 for (int i = 0; i < arraySize; i++)
                 {
+
                     if (dataArray[i] < minValue)
                     {
                         minValue = dataArray[i];
-                        if(dataArray[i] < -100)
-                        {
-                            lowcounter++;
-                        }
                     }
-                }
-                if(minValue < -100)
-                {
-
                 }
                 return minValue;
 
             }
             else
             {
-                return 0;//aanpassen
+                return double.MinValue;
             }
           
         }
 
         public double determineMax()
         {
-            double maxValue = double.MinValue;
-            for (int i = 0; i < arraySize; i++)
+            if(arraySize != 0)
             {
-                if(dataArray[i] > maxValue)
+                double maxValue = double.MinValue;
+                for (int i = 0; i < arraySize; i++)
                 {
-                    maxValue = dataArray[i];
+                    if (dataArray[i] > maxValue)
+                    {
+                        maxValue = dataArray[i];
+                    }
                 }
+                return maxValue;
             }
-            if(maxValue > 1000)
+            else
             {
-
+                return double.MinValue;
             }
-            return maxValue;
         }
 
         public void calculateOffset()

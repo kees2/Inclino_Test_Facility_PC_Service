@@ -14,7 +14,7 @@ namespace ITF_PC_Service
             BMI55 = 0,
             SCA103T = 1,
             BMI085 = 2,
-            LMS6DSO = 3,
+            LSM6DSO = 3,
             MS5611_01BA03 = 4,
             undefined = 5
         };
@@ -65,7 +65,7 @@ namespace ITF_PC_Service
             SCA103T_6 = 15,
             SCA103T_7 = 16,
             BMI085 = 17,
-            LMS6DSO = 18,
+            LSM6DSO = 18,
             MS5611_01BA03 = 19
         };
 

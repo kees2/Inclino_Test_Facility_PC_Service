@@ -52,14 +52,13 @@ namespace ITF_PC_Service
         public void saveIMUOffsets(string path)
         {
             if (!File.Exists(path)){
-                File.CreateText(path);
+                using (StreamWriter sw = File.CreateText(path)) { }
             }
-            StreamWriter sw = File.CreateText(path);
 
             enums.Sensor_Id write_sensor_Id = (enums.Sensor_Id)SensorId;
 
 
-            using (sw = File.AppendText(path))
+            using (StreamWriter sw = File.AppendText(path))
             {
                 sw.WriteLine(write_sensor_Id.ToString());
                 for (int i = 0; i < amountIMUAtributes; i++)
@@ -70,9 +69,6 @@ namespace ITF_PC_Service
         }
         public void readIMUOffsets(string path)
         {
-            if (!File.Exists(path)){
-                File.CreateText(path);
-            }
             using (StreamReader sr = File.OpenText(path))
             {
                 string read_sensor_Id = ((enums.Sensor_Id)SensorId).ToString();

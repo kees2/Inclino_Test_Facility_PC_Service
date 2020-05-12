@@ -23,7 +23,7 @@ namespace ITF_PC_Service
             }
         }
 
-        public void addInclinoData(int Data_type, int newData)
+        public void addInclinoData(int Data_type, double newData)
         {
             if((enums.Data_type)Data_type == enums.Data_type.INCL_A)
             {
@@ -76,14 +76,13 @@ namespace ITF_PC_Service
         public void saveInclinoOffsets(string path)
         {
             if (!File.Exists(path)){
-                File.CreateText(path);
+                using (StreamWriter sw = File.CreateText(path)) { }
             }
-            StreamWriter sw = File.CreateText(path);
 
             enums.Sensor_Id write_sensor_Id = (enums.Sensor_Id)SensorId;
 
 
-            using (sw = File.AppendText(path))
+            using (StreamWriter sw = File.AppendText(path))
             {
                 sw.WriteLine(write_sensor_Id.ToString());
                 for (int i = 0; i < amountInclinoAtributes-1; i++)
@@ -94,9 +93,6 @@ namespace ITF_PC_Service
         }
         public void readInclinoOffsets(string path)
         {
-            if (!File.Exists(path)){
-                File.CreateText(path);
-            }
             using (StreamReader sr = File.OpenText(path))
             {
                 string read_sensor_Id = ((enums.Sensor_Id)SensorId).ToString();

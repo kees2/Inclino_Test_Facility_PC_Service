@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
+using System.IO;
 
 namespace ITF_PC_Service
 {
@@ -24,23 +25,31 @@ namespace ITF_PC_Service
             public byte Attribute;
         };
 
+        private static Thread newThread;
         private const int numThreads = 1;
+        private static int threadBusy = 0;
+
 
         private static DataProcessor dataProcessor = new DataProcessor();
         private static Influxdb1_7 influx17 = new Influxdb1_7();
 
+        private static EventWaitHandle waitHandle = new ManualResetEvent(initialState: true);
+
         public static void initDataHandler()
         {
             influx17.initDB();
-            AsyncReceive.ReceiveMessages();
-            dataReceiver();
-            temperatureCheck();
+            AsyncReceive.ReceiveMessages(); 
+            if (!dataProcessor.checkIfFilesExist())
+            {
+                temperatureCheck();
+            }
+            makeThreads();
             dataProcessor.CalculateOffset();
             Console.WriteLine("OffsetInitialisation finished");
             dataProcessor.resetIMUs();
             dataProcessor.resetInclinos();
 
-            makeThreads();
+            
             InitTimer();
         }
 
@@ -58,10 +67,19 @@ namespace ITF_PC_Service
         private static void timer_ElapsedS(object sender, System.Timers.ElapsedEventArgs e)
         {
             influx17.addIMUs(dataProcessor.IMUS, dataProcessor.AmountIMU);
-            influx17.addInclinos(dataProcessor.Inclinos, dataProcessor.AmountInclino);          
+            influx17.addInclinos(dataProcessor.Inclinos, dataProcessor.AmountInclino);
+
+            waitHandle.Reset();
+
+            while(threadBusy == 1)
+            {
+
+            }
 
             dataProcessor.resetIMUs();
             dataProcessor.resetInclinos();
+
+            waitHandle.Set();
 
             tempRead = 0;
             Baroread = false;
@@ -71,7 +89,7 @@ namespace ITF_PC_Service
         {
             for (int i = 0; i < numThreads; i++)
             {
-                Thread newThread = new Thread(new ThreadStart(ThreadProcReceive));
+                newThread = new Thread(new ThreadStart(ThreadProcReceive));
                 newThread.Name = String.Format("ThreadReceive{0}", i + 1);
                 newThread.Start();
             }
@@ -81,14 +99,19 @@ namespace ITF_PC_Service
         {
             while (true)
             {
+                waitHandle.WaitOne();
+                threadBusy = 1;
                 dataReceiver();
+                threadBusy = 0;
             }
+
         }
 
         private static void temperatureCheck()
         {
             int ITFTemp = 0;
-            while(desiredOffsetTemperature != ITFTemp) { 
+            while (desiredOffsetTemperature != ITFTemp)
+            {
 
                 while (AsyncReceive.MessageReadbuffer == AsyncReceive.dataMessageCounter)
                 {
@@ -116,6 +139,7 @@ namespace ITF_PC_Service
                     }
                 }
             }
+        
         }
 
         private static void dataReceiver()
@@ -176,9 +200,9 @@ namespace ITF_PC_Service
             {
                 return enums.IC_type.BMI085;
             }
-            else if((enums.Sensor_Id)Sensor_id == enums.Sensor_Id.LMS6DSO)
+            else if((enums.Sensor_Id)Sensor_id == enums.Sensor_Id.LSM6DSO)
             {
-                return enums.IC_type.LMS6DSO;
+                return enums.IC_type.LSM6DSO;
             }
             else if((enums.Sensor_Id)Sensor_id == enums.Sensor_Id.MS5611_01BA03)
             {
@@ -194,6 +218,7 @@ namespace ITF_PC_Service
         {
             tempRead = 0;
         }
+
 
     }
 }

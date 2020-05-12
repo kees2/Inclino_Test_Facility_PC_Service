@@ -24,27 +24,34 @@ namespace ITF_PC_Service
         const int amountIMU = amountBMI055 + amountBMI085 + amountLMS6DSO;
 
         //BMI055 Gyro
-        private const int BMI055_Gyr_rang = 125;
+        private const double BMI055_Gyr_rang = 125;
         private double BMI055_Gyr_scale;
 
         //BMI055 Accelerometer
-        private const int BMI055_Acc_rang = 2;//g
+        private const double BMI055_Acc_rang = 2;//g
         private double BMI055_acc_Scale;
 
         //BMI085 Gyro
-        private const int BMI085_Gyr_Angular_Rate = 125;
+        private const double BMI085_Gyr_Angular_Rate = 125;
 
         //BMI085 Accelerometer
-        private const int BMI085_Acc_rang = 0;//2g
+        private const double BMI085_Acc_rang = 0;//2g
         private double BMI085_acc_Scale;
 
         //LSM6DSM gyro
-        private const int LSM6DSM_angular_rate = 125;
+        private const double LSM6DSM_angular_rate = 125;
         private double LSM6DSM_Gyr_scale;
 
         //LSM6DSM Accelerometer
-        private const int LSM6DSM_Acc_rang = 2;//g
+        private const double LSM6DSM_Acc_rang = 2;//g
         private double LSM6DSM_acc_Scale;
+
+        private const double reference_voltage = 3.3 * 1000;
+        private const double ADC_resolution = (1.0/4096.0);
+        private const double ADC_conversion_rate = (reference_voltage * ADC_resolution);
+
+        private const double ADC_oversampling_rate = 4;
+        private const double ADC_Voltage_Multiplier_Ratio = 2;
 
 
         private const int amountInclino = 8;
@@ -98,8 +105,8 @@ namespace ITF_PC_Service
             }
             for (int i = 0; i < amountLMS6DSO; i++)
             {
-                imus[amountBMI055 + amountBMI085 + i] = new IMU(enums.IC_type.LMS6DSO);
-                imus[amountBMI055 + amountBMI085 + i].SensorId = (int)enums.Sensor_Id.LMS6DSO;
+                imus[amountBMI055 + amountBMI085 + i] = new IMU(enums.IC_type.LSM6DSO);
+                imus[amountBMI055 + amountBMI085 + i].SensorId = (int)enums.Sensor_Id.LSM6DSO;
             }
             for (int i = (int)enums.Sensor_Id.SCA103T_0; i < (int)enums.Sensor_Id.SCA103T_0 + amountInclino; i++)
             {
@@ -215,7 +222,7 @@ namespace ITF_PC_Service
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.ACC_Z)
             {
-                if ((enums.Sensor_Id)Sensor_Id == enums.Sensor_Id.LMS6DSO )
+                if ((enums.Sensor_Id)Sensor_Id == enums.Sensor_Id.LSM6DSO )
                 {
                     returnValue = calculateLSM6DSM(data, Data_type);
                 }
@@ -234,7 +241,8 @@ namespace ITF_PC_Service
                 (enums.Data_type)Data_type == enums.Data_type.INCL_B ||
                 (enums.Data_type)Data_type == enums.Data_type.VREF)
             {
-                inclinos[determineIndexInclino(Sensor_Id)].addInclinoData(Data_type, data);
+                double ADCData = ((double)data * ADC_conversion_rate * ADC_Voltage_Multiplier_Ratio)/ADC_oversampling_rate;
+                inclinos[determineIndexInclino(Sensor_Id)].addInclinoData(Data_type, ADCData);
             }
             else
             {
@@ -274,7 +282,7 @@ namespace ITF_PC_Service
             {
                 index = amountBMI055;
             }
-            else if ((enums.Sensor_Id)Sensor_Id == enums.Sensor_Id.LMS6DSO)
+            else if ((enums.Sensor_Id)Sensor_Id == enums.Sensor_Id.LSM6DSO)
             {
                 index = amountBMI055 + amountBMI085;
             }
@@ -310,7 +318,7 @@ namespace ITF_PC_Service
                 }
                 return ((double)temp * 0.125) + 23;
             }
-            else if (ic_type == enums.IC_type.LMS6DSO)
+            else if (ic_type == enums.IC_type.LSM6DSO)
             {
                 //16bit Resolution
                 //Temperature sensitivity 256 LSB/°C
@@ -398,12 +406,11 @@ namespace ITF_PC_Service
                 (enums.Data_type)Data_type >= enums.Data_type.GYRO_X &&
                 (enums.Data_type)Data_type <= enums.Data_type.GYRO_Z)
             {
-                returnValue = data / 1000;
-                //returnValue = (LSM6DSM_angular_rate / 32767) * data;
+                returnValue = (LSM6DSM_angular_rate / 32767.0) * (double)data;
             }
             else
             {
-                returnValue = (LSM6DSM_acc_Scale * data);
+                returnValue = (LSM6DSM_acc_Scale * (double)data);
                 //returnValue = (data / 32768) * 1000 * 2 ^ (LSM6DSM_Acc_rang + 1);
             }
             return returnValue;
@@ -463,5 +470,16 @@ namespace ITF_PC_Service
             offsetTimerDone = true;
             OffsetTimer.Stop();
         }
+
+
+        public bool checkIfFilesExist()
+        {
+            if (!File.Exists(pathIMU) || !File.Exists(pathAccelerometer) )
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 }

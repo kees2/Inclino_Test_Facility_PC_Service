@@ -56,7 +56,7 @@ namespace ITF_PC_Service
                     if(source[i].data[j].arraySize > 0)
                     {
                         LineProtocolPoint point = convertToPoint(source[i].SensorId, (enums.Data_type)(j+1), source[i].data[j], source[i].icType, "IMU_measurement");
-                        payload.Add(point);
+                        if (point != null) { payload.Add(point); }
                     }
                     else
                     {
@@ -77,14 +77,14 @@ namespace ITF_PC_Service
             {
                 if ((source[i].data[0].arraySize != 0) & (source[i].data[1].arraySize != 0)){
                     point = convertToPoint(source[i].SensorId, enums.Data_type.INCL_A, source[i].data[0], source[i].icType, "Inclino_measurement");
-                    payload.Add(point);
+                    if (point != null) { payload.Add(point);}
                     point = convertToPoint(source[i].SensorId, enums.Data_type.INCL_B, source[i].data[1], source[i].icType, "Inclino_measurement");
-                    payload.Add(point);
+                    if (point != null) { payload.Add(point);}
                     source[i].calculateAllDifferential();
                     point = convertToPoint(source[i].SensorId, enums.Data_type.INCL, source[i].data[2], source[i].icType, "Inclino_measurement");
-                    payload.Add(point);
+                    if (point != null) { payload.Add(point);}
                     point = convertToPoint(source[i].SensorId, enums.Data_type.VREF, source[i].data[3], source[i].icType, "Inclino_measurement");
-                    payload.Add(point);
+                    if (point != null) { payload.Add(point);}
                 }
             }
             var result  = client.WriteAsync(payload);
@@ -97,29 +97,28 @@ namespace ITF_PC_Service
         {
             var fields = new Dictionary<string, object>();
 
-            double average = data.calcAverage();
+            double minValue =           data.determineMin();
+            double maxValue =           data.determineMax();
+            double average  =           data.calcAverage();
+            double averageDerivation =  data.calcAverageError(average);
 
-            fields.Add("Min_value", data.determineMin());
-            fields.Add("Max_value", data.determineMax());
-            fields.Add("AVG_value", average);
-            fields.Add("ERROR_AVG_value", data.calcAverageError(average));
 
-            if (ic_type == enums.IC_type.BMI55 && data_type == enums.Data_type.ACC_X && sensor_id == (int)enums.Sensor_Id.BMI055_6)
+
+            if (minValue != double.MinValue)
             {
-                int j = 0;
-                int k;
-                if (data.determineMax() > 500)
-                {
-                    for(int i = 0; i < data.arraySize; i++)
-                    {
-                        if (data.dataArray[i] > 200)
-                        {
-                            j++;
-                            k = i;
-                        }
-                    }
-
-                }
+                fields.Add("Min_value", minValue);
+            }
+            if(maxValue != double.MinValue)
+            {
+                fields.Add("Max_value", maxValue);
+            }
+            if(average != double.MinValue)
+            {
+                fields.Add("AVG_value", average);
+            }
+            if (averageDerivation != double.MinValue)
+            {
+                fields.Add("ERROR_AVG_value", averageDerivation);
             }
 
             if (fields.Count == 0)
